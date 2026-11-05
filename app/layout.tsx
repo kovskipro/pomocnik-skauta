@@ -2,14 +2,19 @@ import type React from "react"
 import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans";
 import { ErrorBoundary } from "@/components/error-boundary"
+import { LenisProvider } from "@/components/lenis-provider"
+import { SITE_URL } from "@/lib/site"
 import "./globals.css"
 
 export const metadata: Metadata = {
   title: "Pomocnik Skauta - Funkcje i Umiejętności",
   description: "Przewodnik po funkcjach w zastępie harcerskim i wymaganych umiejętnościach",
   generator: 'v0.dev',
-  metadataBase: new URL('https://pomocnik-skauta.pl'),
-  keywords: ['harcerstwo', 'skauci', 'funkcje harcerskie', 'umiejętności', 'zastęp', 'przewodnik skauta'],
+  metadataBase: new URL(SITE_URL),
+  keywords: ['pomocnik skauta', 'pomocnik skauta funkcje', 'harcerstwo', 'skauci', 'funkcje harcerskie', 'umiejętności', 'zastęp', 'przewodnik skauta'],
+  alternates: {
+    canonical: SITE_URL,
+  },
   authors: [{ name: 'Skauci Europy' }],
   icons: {
     icon: '/croix-agse.png',
@@ -17,7 +22,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Pomocnik Skauta - Funkcje i Umiejętności',
     description: 'Przewodnik po funkcjach w zastępie harcerskim i wymaganych umiejętnościach',
-    url: 'https://pomocnik-skauta.pl',
+    url: SITE_URL,
     siteName: 'Pomocnik Skauta',
     images: [
       {
@@ -48,17 +53,12 @@ export default function RootLayout({
     "@type": "WebSite",
     "name": "Pomocnik Skauta",
     "description": "Przewodnik po funkcjach w zastępie harcerskim i wymaganych umiejętnościach",
-    "url": "https://pomocnik-skauta.pl",
+    "url": SITE_URL,
     "inLanguage": "pl",
     "about": {
       "@type": "Organization",
       "name": "Harcerstwo",
       "description": "Skauting i edukacja harcerska"
-    },
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "https://pomocnik-skauta.pl/{search_term_string}",
-      "query-input": "required name=search_term_string"
     }
   }
 
@@ -74,7 +74,7 @@ export default function RootLayout({
       </head>
       <body className={`${GeistSans.className} bg-black min-h-screen`}>
         <ErrorBoundary>
-          {children}
+          <LenisProvider>{children}</LenisProvider>
         </ErrorBoundary>
       </body>
     </html>

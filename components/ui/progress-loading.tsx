@@ -10,6 +10,7 @@ interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
     ({ className, value = 0, size = "md", color = "default", showValueLabel = false, ...props }, ref) => {
+        const clampedValue = Math.min(100, Math.max(0, value))
         const sizeClasses = {
             sm: "h-2",
             md: "h-3",
@@ -28,13 +29,20 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
                 {showValueLabel && (
                     <div className="flex justify-between text-sm text-neutral-400">
                         <span>Ładowanie...</span>
-                        <span>{Math.round(Math.min(100, value))}%</span>
+                        <span>{Math.round(clampedValue)}%</span>
                     </div>
                 )}
-                <div className={cn("w-full bg-neutral-800 rounded-full overflow-hidden", sizeClasses[size], className)}>
+                <div
+                    className={cn("w-full bg-neutral-800 rounded-full overflow-hidden", sizeClasses[size], className)}
+                    role="progressbar"
+                    aria-label="Postęp ładowania"
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={Math.round(clampedValue)}
+                >
                     <div
                         className={cn("h-full transition-all duration-300 ease-out rounded-full", colorClasses[color])}
-                        style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
+                        style={{ width: `${clampedValue}%` }}
                     />
                 </div>
             </div>

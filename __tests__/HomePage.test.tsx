@@ -1,27 +1,24 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import HomePage from '../app/page'
+import HomePageClient from '../app/home-page-client'
 
-// Mock funkcji z lib/functions
-jest.mock('../lib/functions', () => ({
-  getAllFunctions: jest.fn(() => Promise.resolve([
-    {
-      id: 'przewodnik',
-      name: 'Przewodnik',
-      description: 'Oprowadza drużynę po okolicy',
-      icon: 'compass',
-      color_background: 'bg-blue-500',
-      color_text: 'text-blue-300',
-      skills: [
-        {
-          category: 'Podstawowe umiejętności',
-          items: ['Orientacja w terenie', 'Czytanie mapy']
-        }
-      ]
-    }
-  ])),
-  countSkills: jest.fn(() => 2)
-}))
+const mockedFunctions = [
+  {
+    id: 'przewodnik',
+    name: 'Przewodnik',
+    description: 'Oprowadza drużynę po okolicy',
+    icon: 'compass',
+    color_background: 'bg-blue-500',
+    color_text: 'text-blue-300',
+    color_border: null,
+    skills: [
+      {
+        category: 'Podstawowe umiejętności',
+        items: ['Orientacja w terenie', 'Czytanie mapy']
+      }
+    ]
+  }
+]
 
 // Mock komponentów Next.js
 jest.mock('next/image', () => ({
@@ -59,19 +56,15 @@ jest.mock('../components/footer', () => {
 })
 
 describe('HomePage', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
+  test('renderuje treść od razu, gdy funkcje są przekazane z serwera', () => {
+    render(<HomePageClient initialFunctions={mockedFunctions} />)
 
-  test('pokazuje ekran ładowania na początku', () => {
-    render(<HomePage />)
-    
     expect(screen.getByText('Pomocnik Skauta')).toBeInTheDocument()
-    expect(screen.getByText('Ładowanie funkcji...')).toBeInTheDocument()
+    expect(screen.getAllByText('Przewodnik').length).toBeGreaterThan(0)
   })
 
   test('ładuje i wyświetla funkcje po załadowaniu', async () => {
-    render(<HomePage />)
+    render(<HomePageClient initialFunctions={mockedFunctions} />)
     
     // Czeka aż zniknie ekran ładowania i pojawi się zawartość
     await waitFor(() => {
@@ -84,20 +77,18 @@ describe('HomePage', () => {
   })
 
   test('renderuje navbar i footer po załadowaniu', async () => {
-    render(<HomePage />)
-    
+    render(<HomePageClient initialFunctions={mockedFunctions} />)
+
     await waitFor(() => {
-      expect(screen.getByTestId('navbar')).toBeInTheDocument()
+      expect(screen.getByTestId('footer')).toBeInTheDocument()
     })
 
-    expect(screen.getByTestId('footer')).toBeInTheDocument()
+    expect(screen.getByTestId('navbar')).toBeInTheDocument()
   })
 
-  test('wyświetla progress bar podczas ładowania', () => {
-    render(<HomePage />)
-    
-    // Sprawdza czy jest progress bar (element z odpowiednimi klasami)
-    const progressContainer = screen.getByText('Ładowanie funkcji...').closest('div')
-    expect(progressContainer).toBeInTheDocument()
+  test('nie pokazuje ekranu ładowania, gdy dane są dostępne od razu', () => {
+    render(<HomePageClient initialFunctions={mockedFunctions} />)
+
+    expect(screen.queryByText('Ładowanie funkcji...')).not.toBeInTheDocument()
   })
 })

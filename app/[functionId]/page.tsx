@@ -1,6 +1,8 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { getFunctionById, countSkills, getAllFunctions } from "../../lib/functions"
+import { getAllFunctions, getFunctionById } from "@/lib/functions-server"
+import { countSkills } from "@/lib/functions"
+import { SITE_URL } from "@/lib/site"
 import { FunctionPageClient } from "./function-page-client"
 
 // Generowanie dynamicznych metadanych dla SEO
@@ -11,42 +13,63 @@ export async function generateMetadata({ params }: { params: Promise<{ functionI
     if (!func) {
         return {
             title: "Funkcja nie znaleziona - Pomocnik Skauta",
-            description: "Funkcja harcerska nie została znaleziona. Wróć do strony głównej aby wybrać dostępną funkcję."
+            description: "Funkcja harcerska nie została znaleziona. Wróć do strony głównej aby wybrać dostępną funkcję.",
+            robots: {
+                index: false,
+                follow: false,
+            }
         }
     }
 
     const totalSkills = countSkills(func.skills)
     const skillCategories = func.skills?.map(skill => skill.category).join(", ") || ""
+    const functionName = func.name.trim()
+    const functionSlugName = resolvedParams.functionId.replace(/-/g, " ")
+    const brandedFunctionQuery = `Pomocnik Skauta ${functionName}`
 
-    const title = `${func.name} - Umiejętności Harcerskie | Pomocnik Skauta`
-    const description = `Poznaj wszystkie umiejętności potrzebne do pełnienia funkcji ${func.name} w harcerstwie. ${totalSkills} umiejętności w kategoriach: ${skillCategories}. Kompletny przewodnik dla harcerzy.`
+    const title = `${brandedFunctionQuery} - wymagania i umiejętności funkcji`
+    const description = `${brandedFunctionQuery}. Poznaj wymagania i umiejętności potrzebne do pełnienia funkcji ${functionName} w zastępie. ${totalSkills} umiejętności w kategoriach: ${skillCategories}.`
+    const keywords = Array.from(new Set([
+        brandedFunctionQuery.toLowerCase(),
+        `pomocnik skauta ${functionSlugName}`.toLowerCase(),
+        `${functionName} funkcja harcerska`.toLowerCase(),
+        "pomocnik skauta funkcje",
+        "funkcje harcerskie",
+        "umiejętności harcerskie",
+        "harcerstwo",
+        "scouting",
+        "zhp",
+        "przewodnik harcerski",
+    ]))
 
     return {
         title,
         description,
-        keywords: [
-            func.name,
-            "harcerstwo",
-            "umiejętności harcerskie",
-            "funkcje harcerskie",
-            "scouting",
-            "ZHP",
-            skillCategories,
-            "przewodnik harcerski"
-        ].filter(Boolean).join(", "),
+        keywords,
+        robots: {
+            index: true,
+            follow: true,
+            googleBot: {
+                index: true,
+                follow: true,
+                "max-image-preview": "large",
+                "max-snippet": -1,
+                "max-video-preview": -1,
+            },
+        },
         openGraph: {
             title,
             description,
-            type: "website",
-            url: `https://pomocnik-skauta.pl/${resolvedParams.functionId}`,
+            type: "article",
+            url: `${SITE_URL}/${resolvedParams.functionId}`,
             siteName: "Pomocnik Skauta",
             locale: "pl_PL",
             images: [
                 {
-                    url: "https://pomocnik-skauta.pl/og-image.jpg",
-                    width: 1200,
-                    height: 630,
-                    alt: `${func.name} - Umiejętności Harcerskie`
+                    url: `${SITE_URL}/croix-agse.png`,
+                    width: 64,
+                    height: 64,
+                    alt: `${brandedFunctionQuery} - wymagania i umiejętności`
                 }
             ]
         },
@@ -54,10 +77,11 @@ export async function generateMetadata({ params }: { params: Promise<{ functionI
             card: "summary_large_image",
             title,
             description,
-            images: ["https://pomocnik-skauta.pl/og-image.jpg"]
+            images: [`${SITE_URL}/croix-agse.png`]
         },
+        category: "Harcerstwo",
         alternates: {
-            canonical: `https://pomocnik-skauta.pl/${resolvedParams.functionId}`
+            canonical: `${SITE_URL}/${resolvedParams.functionId}`
         }
     }
 }
