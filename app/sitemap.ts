@@ -1,5 +1,6 @@
-import { MetadataRoute } from 'next'
-import { getAllFunctions } from '../lib/functions'
+import { MetadataRoute } from "next"
+import { getAllFunctions } from "@/lib/functions-server"
+import { SITE_URL } from "@/lib/site"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const functions = await getAllFunctions()
@@ -8,7 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Strona główna
     const routes = [
         {
-            url: 'https://pomocnik-skauta.pl',
+            url: SITE_URL,
             lastModified: currentDate,
             changeFrequency: 'weekly' as const,
             priority: 1.0,
@@ -17,10 +18,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // Dodaj wszystkie strony funkcji
     const functionRoutes = functions.map((func) => ({
-        url: `https://pomocnik-skauta.pl/${func.id}`,
+        url: `${SITE_URL}/${func.id}`,
         lastModified: currentDate,
-        changeFrequency: 'monthly' as const,
-        priority: 0.8,
+        changeFrequency: 'weekly' as const,
+        priority: 0.9,
     }))
 
     return [...routes, ...functionRoutes]

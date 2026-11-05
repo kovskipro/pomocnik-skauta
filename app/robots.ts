@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next'
+import { SITE_URL } from '@/lib/site'
 
 export default function robots(): MetadataRoute.Robots {
     return {
@@ -7,6 +8,7 @@ export default function robots(): MetadataRoute.Robots {
             allow: '/',
             disallow: ['/api/', '/private/']
         },
-        sitemap: 'https://pomocnik-skauta.pl/sitemap.xml'
+        host: SITE_URL,
+        sitemap: `${SITE_URL}/sitemap.xml`
     }
 }
